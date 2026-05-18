@@ -1,0 +1,42 @@
+name: Update dashboard data
+
+"on":
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run PLA update
+        run: |
+          python -m src.update_pla_history
+
+      - name: Commit updated CSV files
+        run: |
+          git config user.name "axolp"
+          git config user.email "j.w.ploska@gmail.com"
+
+          git add data/*.csv
+
+          git diff --cached --quiet || git commit -m "Automated data update"
+          
+          git pull --rebase
+          git push
