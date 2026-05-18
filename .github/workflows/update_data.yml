@@ -25,9 +25,10 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run PLA update
+      - name: Run KPI updates
         run: |
           python -m src.update_pla_history
+          python -m src.update_kpi7_history
 
       - name: Commit updated CSV files
         run: |
