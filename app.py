@@ -118,7 +118,7 @@ result = build_dashboard_result()
 
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Overall Score", result.score + " /100")
+col1.metric("Overall Score", f"{result.score} / 100")
 col2.metric("Risk Bucket", result.bucket.value)
 col3.metric("Red Alert", "YES" if result.red_alert else "NO")
 
