@@ -106,6 +106,33 @@ def build_dashboard_result():
 
     return calculate_tcri(kpis)
 
+def build_kpi1_detail_table(kpi1_df: pd.DataFrame) -> None:
+    if kpi1_df.empty:
+        st.warning("No KPI1 data available.")
+        return
+
+    latest = kpi1_df.iloc[-1]
+
+    total = (
+        int(latest.get("pla_aircraft", 0))
+        + int(latest.get("plan_ships", 0))
+        + int(latest.get("official_ships", 0))
+    )
+
+    detail_df = pd.DataFrame(
+        [
+            {"Metric": "Date", "Value": latest.get("date", "N/A")},
+            {"Metric": "PLA aircraft", "Value": int(latest.get("pla_aircraft", 0))},
+            {"Metric": "Median line crossings", "Value": int(latest.get("median_line_crossings", 0))},
+            {"Metric": "PLAN ships", "Value": int(latest.get("plan_ships", 0))},
+            {"Metric": "Official ships", "Value": int(latest.get("official_ships", 0))},
+            {"Metric": "Aircraft + ships", "Value": total},
+        ]
+    )
+
+    st.subheader("Latest KPI1 details")
+    st.dataframe(detail_df, use_container_width=True, hide_index=True)
+
 
 st.set_page_config(
     page_title="Taiwan Risk Dashboard",
@@ -116,32 +143,7 @@ st.title("Taiwan Risk Dashboard")
 
 result = build_dashboard_result()
 
-kpi1_df = read_csv("kpi1_data.csv")
 
-if not kpi1_df.empty:
-    latest_pla = kpi1_df.iloc[-1]
-
-    st.subheader("Today's PLA Activity")
-
-    col1, col2, col3, col4, col5 = st.columns(5)
-
-    col1.metric("PLA aircraft", int(latest_pla.get("pla_aircraft", 0)))
-    col2.metric("Median line crossings", int(latest_pla.get("median_line_crossings", 0)))
-    col3.metric("PLAN ships", int(latest_pla.get("plan_ships", 0)))
-    col4.metric("Official ships", int(latest_pla.get("official_ships", 0)))
-
-    total = (
-        int(latest_pla.get("pla_aircraft", 0))
-        + int(latest_pla.get("plan_ships", 0))
-        + int(latest_pla.get("official_ships", 0))
-    )
-
-    col5.metric("Aircraft + ships", total)
-
-    if "date" in kpi1_df.columns:
-        st.caption(f"Latest update: {latest_pla['date']}")
-
-    st.divider()
 
 col1, col2, col3 = st.columns(3)
 
@@ -171,6 +173,9 @@ st.dataframe(kpi_df, use_container_width=True)
 
 st.bar_chart(kpi_df.set_index("KPI")["Value"])
 
+st.divider()
+
+build_kpi1_detail_table()
 st.divider()
 
 st.subheader("CSV status")
