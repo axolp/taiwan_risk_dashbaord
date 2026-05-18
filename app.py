@@ -139,7 +139,104 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    """
+    <style>
+        .stApp {
+            background: linear-gradient(180deg, #0b1120 0%, #111827 45%, #020617 100%);
+            color: #e5e7eb;
+        }
+
+        h1, h2, h3 {
+            color: #f8fafc;
+            letter-spacing: 0.02em;
+        }
+
+        h1 {
+            font-size: 2.3rem !important;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.6rem;
+        }
+
+        section[data-testid="stSidebar"] {
+            background-color: #020617;
+            border-right: 1px solid #1e293b;
+        }
+
+        div[data-testid="stMetric"] {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 0 18px rgba(15, 23, 42, 0.8);
+        }
+
+        div[data-testid="stMetricLabel"] {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        div[data-testid="stMetricValue"] {
+            color: #f8fafc;
+            font-size: 1.8rem;
+        }
+
+        div[data-testid="stDataFrame"] {
+            border: 1px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .strategy-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-left: 5px solid #dc2626;
+            border-radius: 14px;
+            padding: 18px 22px;
+            margin: 18px 0;
+        }
+
+        .strategy-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 6px;
+        }
+
+        .strategy-card-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .small-muted {
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        hr {
+            border-color: #334155;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("Taiwan Risk Dashboard")
+
+st.markdown(
+    """
+    <div class="strategy-card">
+        <div class="strategy-card-title">Taiwan Conflict Risk Index</div>
+        <div class="strategy-card-text">
+            Dashboard monitoruje napięcie Chiny–Tajwan przez zestaw KPI:
+            presję PLA, stres rynkowy oraz ręczne sygnały strategiczne.
+            Celem nie jest przewidywanie wojny, tylko wczesne wykrywanie eskalacji.
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 result = build_dashboard_result()
 
