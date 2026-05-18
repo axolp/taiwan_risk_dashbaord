@@ -116,6 +116,33 @@ st.title("Taiwan Risk Dashboard")
 
 result = build_dashboard_result()
 
+kpi1_df = read_csv("kpi1_data.csv")
+
+if not kpi1_df.empty:
+    latest_pla = kpi1_df.iloc[-1]
+
+    st.subheader("Today's PLA Activity")
+
+    col1, col2, col3, col4, col5 = st.columns(5)
+
+    col1.metric("PLA aircraft", int(latest_pla.get("pla_aircraft", 0)))
+    col2.metric("Median line crossings", int(latest_pla.get("median_line_crossings", 0)))
+    col3.metric("PLAN ships", int(latest_pla.get("plan_ships", 0)))
+    col4.metric("Official ships", int(latest_pla.get("official_ships", 0)))
+
+    total = (
+        int(latest_pla.get("pla_aircraft", 0))
+        + int(latest_pla.get("plan_ships", 0))
+        + int(latest_pla.get("official_ships", 0))
+    )
+
+    col5.metric("Aircraft + ships", total)
+
+    if "date" in kpi1_df.columns:
+        st.caption(f"Latest update: {latest_pla['date']}")
+
+    st.divider()
+
 col1, col2, col3 = st.columns(3)
 
 col1.metric("Overall Score", f"{result.score} / 100")
