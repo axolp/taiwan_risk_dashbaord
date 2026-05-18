@@ -15,6 +15,7 @@ from main import (
 
 
 DATA_DIR = Path("data")
+ASSETS_DIR = Path("assets")
 
 KPI_FILES = {
     "PLA_Air_Naval_Pressure": "kpi1_data.csv",
@@ -26,6 +27,18 @@ KPI_FILES = {
     "Market_Stress": "kpi7_data.csv",
     "Semiconductor_Supply_Chain": "kpi8_data.csv",
     "China_Domestic_Mobilization": "kpi9_data.csv",
+}
+
+KPI_LABELS = {
+    "PLA_Air_Naval_Pressure": "PLA Air / Naval Pressure",
+    "Exercise_Escalation": "Exercise Escalation",
+    "Maritime_Blockade_Shipping": "Maritime / Blockade",
+    "China_Rhetoric_Legal": "China Rhetoric / Legal",
+    "US_Allies_Signal": "US & Allies Signal",
+    "Cyber_Infrastructure": "Cyber / Infrastructure",
+    "Market_Stress": "Market Stress",
+    "Semiconductor_Supply_Chain": "Semiconductor Chain",
+    "China_Domestic_Mobilization": "China Mobilization",
 }
 
 
@@ -101,10 +114,33 @@ def build_dashboard_result():
     for kpi_name, filename in KPI_FILES.items():
         if kpi_name in kpis:
             continue
-
         kpis[kpi_name] = get_manual_kpi(kpi_name, filename)
 
     return calculate_tcri(kpis)
+
+
+def risk_color(score: float) -> str:
+    if score >= 75:
+        return "#ef4444"
+    if score >= 50:
+        return "#f97316"
+    if score >= 30:
+        return "#eab308"
+    return "#22c55e"
+
+
+def render_score_card(title, value, subtitle, color="#38bdf8"):
+    st.markdown(
+        f"""
+        <div class="op-card">
+            <div class="op-card-label">{title}</div>
+            <div class="op-card-value" style="color:{color};">{value}</div>
+            <div class="op-card-subtitle">{subtitle}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 
 def build_kpi1_detail_table(kpi1_df: pd.DataFrame) -> None:
     if kpi1_df.empty:
@@ -130,153 +166,291 @@ def build_kpi1_detail_table(kpi1_df: pd.DataFrame) -> None:
         ]
     )
 
-    st.subheader("Latest KPI1 details")
     st.dataframe(detail_df, use_container_width=True, hide_index=True)
 
 
 st.set_page_config(
     page_title="Taiwan Risk Dashboard",
     layout="wide",
+    initial_sidebar_state="collapsed",
 )
 
 st.markdown(
     """
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+
         .stApp {
-            background: linear-gradient(180deg, #0b1120 0%, #111827 45%, #020617 100%);
-            color: #e5e7eb;
+            background:
+                radial-gradient(circle at top left, rgba(34, 197, 94, 0.08), transparent 28%),
+                radial-gradient(circle at top right, rgba(239, 68, 68, 0.10), transparent 25%),
+                linear-gradient(180deg, #050807 0%, #08110d 48%, #020403 100%);
+            color: #d1d5db;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
         }
 
         h1, h2, h3 {
+            font-family: 'Roboto Mono', monospace;
             color: #f8fafc;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         h1 {
-            font-size: 2.3rem !important;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 0.6rem;
+            font-size: 2.1rem !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            padding-bottom: 0.7rem;
         }
 
-        section[data-testid="stSidebar"] {
-            background-color: #020617;
-            border-right: 1px solid #1e293b;
+        .top-classified {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            background: rgba(2, 6, 23, 0.72);
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            color: #86efac;
+            font-size: 0.82rem;
+            letter-spacing: 0.12em;
         }
 
-        div[data-testid="stMetric"] {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 14px;
+        .war-room-panel {
+            border: 1px solid rgba(148, 163, 184, 0.30);
+            background:
+                linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.88)),
+                repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(34,197,94,0.06) 29px),
+                repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(34,197,94,0.06) 29px);
+            border-radius: 2px;
+            padding: 20px;
+            box-shadow: 0 0 32px rgba(0,0,0,0.45);
+        }
+
+        .briefing-title {
+            color: #f8fafc;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .briefing-text {
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            line-height: 1.65;
+        }
+
+        .op-card {
+            background: rgba(2, 6, 23, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            border-left: 4px solid #22c55e;
             padding: 18px;
-            box-shadow: 0 0 18px rgba(15, 23, 42, 0.8);
+            min-height: 132px;
+            box-shadow: inset 0 0 18px rgba(34, 197, 94, 0.05);
         }
 
-        div[data-testid="stMetricLabel"] {
+        .op-card-label {
             color: #94a3b8;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            margin-bottom: 12px;
+        }
+
+        .op-card-value {
+            font-size: 2.05rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .op-card-subtitle {
+            color: #64748b;
+            font-size: 0.78rem;
+            margin-top: 12px;
+        }
+
+        .map-placeholder {
+            height: 340px;
+            border: 1px solid rgba(34, 197, 94, 0.35);
+            background:
+                linear-gradient(rgba(2, 6, 23, 0.65), rgba(2, 6, 23, 0.65)),
+                repeating-linear-gradient(0deg, transparent, transparent 34px, rgba(34,197,94,0.12) 35px),
+                repeating-linear-gradient(90deg, transparent, transparent 34px, rgba(34,197,94,0.12) 35px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #86efac;
+            text-align: center;
+            font-size: 0.9rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .section-header {
+            margin-top: 26px;
+            margin-bottom: 10px;
+            padding: 9px 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border-left: 4px solid #22c55e;
+            color: #f8fafc;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
             font-size: 0.9rem;
         }
 
-        div[data-testid="stMetricValue"] {
-            color: #f8fafc;
-            font-size: 1.8rem;
-        }
-
         div[data-testid="stDataFrame"] {
-            border: 1px solid #334155;
-            border-radius: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.32);
+            border-radius: 2px;
             overflow: hidden;
         }
 
-        .strategy-card {
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-left: 5px solid #dc2626;
-            border-radius: 14px;
-            padding: 18px 22px;
-            margin: 18px 0;
+        .status-ok {
+            color: #86efac;
         }
 
-        .strategy-card-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #f8fafc;
-            margin-bottom: 6px;
-        }
-
-        .strategy-card-text {
-            color: #cbd5e1;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .small-muted {
-            color: #94a3b8;
-            font-size: 0.85rem;
+        .status-missing {
+            color: #f87171;
         }
 
         hr {
-            border-color: #334155;
+            border-color: rgba(148, 163, 184, 0.22);
         }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-st.title("Taiwan Risk Dashboard")
 
 st.markdown(
     """
-    <div class="strategy-card">
-        <div class="strategy-card-title">Taiwan Conflict Risk Index</div>
-        <div class="strategy-card-text">
-            Dashboard monitoruje napięcie Chiny–Tajwan przez zestaw KPI:
-            presję PLA, stres rynkowy oraz ręczne sygnały strategiczne.
-            Celem nie jest przewidywanie wojny, tylko wczesne wykrywanie eskalacji.
-        </div>
+    <div class="top-classified">
+        <div>STRATEGIC SITUATION ROOM</div>
+        <div>TAIWAN STRAIT MONITORING CELL</div>
+        <div>LIVE CSV FEED</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
+st.title("Taiwan Conflict Risk Index")
+
 result = build_dashboard_result()
+score_color = risk_color(result.score)
+
+left, right = st.columns([1.35, 1])
+
+with left:
+    st.markdown(
+        """
+        <div class="war-room-panel">
+            <div class="briefing-title">Operational Briefing</div>
+            <div class="briefing-text">
+                Panel monitoruje napięcie Chiny–Tajwan przez zestaw KPI obejmujących presję wojskową PLA,
+                sygnały strategiczne, rynek, cyberprzestrzeń, logistykę i łańcuch półprzewodników.
+                Celem dashboardu nie jest przewidywanie konfliktu, lecz szybkie wykrywanie zmian eskalacyjnych.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.write("")
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        render_score_card("Overall Risk Score", f"{result.score} / 100", "Synthetic TCRI reading", score_color)
+    with c2:
+        render_score_card("Risk Bucket", result.bucket.value, "Current classification", "#f8fafc")
+    with c3:
+        alert_value = "YES" if result.red_alert else "NO"
+        alert_color = "#ef4444" if result.red_alert else "#22c55e"
+        render_score_card("Red Alert", alert_value, "Escalation trigger", alert_color)
+
+with right:
+    map_path = ASSETS_DIR / "taiwan_map.png"
+
+    if map_path.exists():
+        st.image(str(map_path), use_container_width=True)
+    else:
+        st.markdown(
+            """
+            <div class="map-placeholder">
+                MAP / SATELLITE IMAGE SLOT<br><br>
+                Add file:<br>
+                assets/taiwan_map.png
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
-
-col1, col2, col3 = st.columns(3)
-
-col1.metric("Overall Score", f"{result.score} / 100")
-col2.metric("Risk Bucket", result.bucket.value)
-col3.metric("Red Alert", "YES" if result.red_alert else "NO")
-
-st.divider()
-
-st.subheader("KPI values")
+st.markdown('<div class="section-header">KPI Tactical Board</div>', unsafe_allow_html=True)
 
 rows = []
 
 for kpi in result.kpis.values():
     rows.append(
         {
-            "KPI": kpi.name,
-            "Value": kpi.value,
+            "KPI": KPI_LABELS.get(kpi.name, kpi.name),
+            "Raw Name": kpi.name,
+            "Value": round(kpi.value, 2),
             "Weight": kpi.weight,
-            "Contribution": kpi.contribution,
+            "Contribution": round(kpi.contribution, 2),
         }
     )
 
 kpi_df = pd.DataFrame(rows)
+kpi_df = kpi_df.sort_values("Contribution", ascending=False)
 
-st.dataframe(kpi_df, use_container_width=True)
+st.dataframe(
+    kpi_df[["KPI", "Value", "Weight", "Contribution"]],
+    use_container_width=True,
+    hide_index=True,
+)
 
 st.bar_chart(kpi_df.set_index("KPI")["Value"])
 
-st.divider()
+st.markdown('<div class="section-header">PLA Air / Naval Pressure — Latest Observation</div>', unsafe_allow_html=True)
 kpi1_df = read_csv("kpi1_data.csv")
 build_kpi1_detail_table(kpi1_df)
-st.divider()
 
-st.subheader("CSV status")
+st.markdown('<div class="section-header">Source Feed Integrity</div>', unsafe_allow_html=True)
+
+status_rows = []
 
 for kpi_name, filename in KPI_FILES.items():
     path = DATA_DIR / filename
-    st.write(f"`{filename}` — {'OK' if path.exists() else 'missing'}")
+    df = read_csv(filename)
+
+    latest_date = "N/A"
+    rows_count = 0
+
+    if not df.empty:
+        rows_count = len(df)
+        if "date" in df.columns:
+            latest_date = df.iloc[-1].get("date", "N/A")
+
+    status_rows.append(
+        {
+            "Feed": filename,
+            "KPI": KPI_LABELS.get(kpi_name, kpi_name),
+            "Status": "OK" if path.exists() else "MISSING",
+            "Rows": rows_count,
+            "Latest date": latest_date,
+        }
+    )
+
+status_df = pd.DataFrame(status_rows)
+
+st.dataframe(
+    status_df,
+    use_container_width=True,
+    hide_index=True,
+)
