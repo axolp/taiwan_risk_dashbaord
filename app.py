@@ -174,8 +174,8 @@ st.dataframe(kpi_df, use_container_width=True)
 st.bar_chart(kpi_df.set_index("KPI")["Value"])
 
 st.divider()
-
-build_kpi1_detail_table()
+kpi1_df = read_csv("kpi1_data.csv")
+build_kpi1_detail_table(kpi1_df)
 st.divider()
 
 st.subheader("CSV status")
