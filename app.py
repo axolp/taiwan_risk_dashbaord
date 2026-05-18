@@ -351,10 +351,15 @@ with left:
         """
         <div class="war-room-panel">
             <div class="briefing-title">Operational Briefing</div>
-            <div class="briefing-text">
-                Panel monitoruje napięcie Chiny–Tajwan przez zestaw KPI obejmujących presję wojskową PLA,
-                sygnały strategiczne, rynek, cyberprzestrzeń, logistykę i łańcuch półprzewodników.
-                Celem dashboardu nie jest przewidywanie konfliktu, lecz szybkie wykrywanie zmian eskalacyjnych.
+             <div class="briefing-text">
+                Strategic monitoring panel tracking China–Taiwan escalation dynamics through
+                a 9-indicator risk framework covering military activity, geopolitical signaling,
+                cyber domain pressure, maritime disruption and financial market stress.
+                <br><br>
+                Current live implementation includes:
+                <b>KPI-1 — PLA Air & Naval Pressure</b> and
+                <b>KPI-7 — Market Stress Indicator</b>.
+                Additional intelligence modules are scheduled for phased deployment.
             </div>
         </div>
         """,
