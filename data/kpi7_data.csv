@@ -1,2 +1,3 @@
 date,kpi_name,kpi_value,weight,contribution,tsm_5d_return,soxx_vs_spy_5d,twd_5d_return,vix_change_5d,taiwan_cds_change_score,formula_variant,tsm_stress,soxx_spy_stress,twd_stress,vix_stress,cds_stress,raw_score
 2026-05-18,Market_Stress,15.73,0.1,1.57,-1.2026,-5.4885,-0.8274,0.06,,0.0,1.2,5.49,0.83,0.06,0.0,15.73
+2026-05-19,Market_Stress,2.47,0.1,0.25,,,-0.9671,0.36,,0.0,0.0,0.0,0.97,0.36,0.0,2.47
